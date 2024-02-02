@@ -1,4 +1,5 @@
 pub mod app;
+pub mod chargen;
 pub mod event;
 pub mod game;
 pub mod tui;
