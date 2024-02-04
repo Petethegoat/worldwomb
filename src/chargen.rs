@@ -1,35 +1,105 @@
-use crate::app::{InputTarget, Renderer, TITLE};
+use crate::{
+	app::{App, InputTarget, Renderer, TITLE},
+	game::Class,
+};
+use crossterm::event::KeyCode;
 use ratatui::{
-	layout::{Alignment, Constraint, Direction, Layout},
+	layout::{Alignment, Rect},
 	style::Stylize,
-	widgets::{block::Position, Block, BorderType, Borders, Paragraph},
+	widgets::{block::Position, Block, BorderType, Borders, Clear, Paragraph, Widget},
+	Frame,
 };
 
-#[derive(Debug)]
+#[derive(Copy, Clone)]
 pub struct Chargen<'a> {
 	pub title: &'a str,
-	pub input: String,
+	stage: ChargenStage,
+	name: &'a str,
+}
+
+#[derive(Debug, Copy, Clone)]
+enum ChargenStage {
+	Class,
+	Name,
+	Farewell,
+}
+
+impl Chargen<'_> {
+	pub fn get_render_text(&self, app: &App) -> String {
+		match self.stage {
+			ChargenStage::Class => {
+				let mut s = String::from("Choose your class:\n");
+
+				let mut j = 1;
+				for class in Class::ALL {
+					s.push_str(&format!("{j} - {class:?}\n").to_owned());
+					j += 1;
+				}
+				s
+			}
+			ChargenStage::Name => {
+				format!("And thy name, {:?}?", app.player.class)
+			}
+			ChargenStage::Farewell => {
+				format!(
+					"I fare thee well.\nAnd {}? Beware the Worldwomb.\n\nPress enter to continue.",
+					app.player.name
+				)
+			}
+		}
+	}
 }
 
 impl InputTarget for Chargen<'_> {
-	fn handle_input(&mut self, _app: &String, c: char) {
-		self.input = c.to_string();
+	fn handle_input(&mut self, app: &mut App, c: crossterm::event::KeyCode) {
+		match self.stage {
+			ChargenStage::Class => {
+				match c {
+					KeyCode::Char('1') => {
+						app.player.class = Class::Vagrant;
+					}
+					KeyCode::Char('2') => {
+						app.player.class = Class::Conscript;
+					}
+					KeyCode::Char('3') => {
+						app.player.class = Class::Pilgrim;
+					}
+					_ => {}
+				}
+				if app.player.class != Class::Unknown {
+					self.stage = ChargenStage::Name;
+				}
+			}
+			ChargenStage::Name => {
+				match c {
+					KeyCode::Enter => {
+						app.player.name = "Cochran";
+						self.stage = ChargenStage::Farewell;
+					}
+					KeyCode::Char(c) => {
+						//	let mut new = self.name.to_string();
+						//	new.push(c);
+						//	self.name = &new;
+					}
+					_ => {}
+				}
+			}
+			ChargenStage::Farewell => {
+				if let KeyCode::Enter = c {
+					app.pop_screen();
+				}
+			}
+		}
 	}
 }
 
 impl Renderer for Chargen<'_> {
-	fn render_ui(&self, _app: &crate::app::App, f: &mut ratatui::Frame) {
+	fn render_ui(&self, app: &crate::app::App, f: &mut Frame, area: Rect) {
 		f.render_widget(
 			Paragraph::new(format!(
-				"\
-					Entering the Worldwomb...\n\
-					\n\
-					Choose your class:\n\
-					1 - Vagrant\n\
-					2 - Conscript\n\
-					3 - Magician\n\
-					{}
-				", self.input
+				"{}\n{:?}",
+				Chargen::get_render_text(self, app),
+				self.stage
 			))
 			.block(
 				Block::default()
@@ -41,7 +111,7 @@ impl Renderer for Chargen<'_> {
 					.yellow(),
 			)
 			.alignment(Alignment::Center),
-			f.size(),
+			area,
 		)
 	}
 }
@@ -50,35 +120,25 @@ impl Default for Chargen<'_> {
 	fn default() -> Self {
 		Self {
 			title: "Birthing...",
-			input: String::new(),
+			stage: ChargenStage::Class,
+			name: "",
 		}
 	}
 }
 
-#[derive(Debug)]
+#[derive(Copy, Clone)]
 pub struct Gameplay<'a> {
 	pub title: &'a str,
-	pub input: String,
 }
 
 impl InputTarget for Gameplay<'_> {
-	fn handle_input(&mut self, _app: &String, _c: char) {
+	fn handle_input(&mut self, app: &mut App, _c: crossterm::event::KeyCode) {
 		//	app = &c.to_string();
 	}
 }
 
 impl Renderer for Gameplay<'_> {
-	fn render_ui(&self, app: &crate::app::App, f: &mut ratatui::Frame) {
-		let layout = Layout::default()
-			.direction(Direction::Vertical)
-			.constraints([Constraint::Min(1), Constraint::Length(3)])
-			.split(f.size());
-
-		let sub_layout = Layout::default()
-			.direction(Direction::Horizontal)
-			.constraints([Constraint::Percentage(65), Constraint::Percentage(35)])
-			.split(layout[0]);
-
+	fn render_ui(&self, _app: &crate::app::App, f: &mut Frame, area: Rect) {
 		f.render_widget(
 			Paragraph::new(format!(
 				"\
@@ -95,30 +155,7 @@ impl Renderer for Gameplay<'_> {
 					.yellow(),
 			)
 			.alignment(Alignment::Center),
-			sub_layout[0],
-		);
-
-		f.render_widget(
-			Block::new()
-				.borders(Borders::ALL)
-				.border_type(BorderType::Rounded)
-				.title(app.player.name)
-				.title_alignment(Alignment::Center)
-				.title_position(Position::Bottom)
-				.yellow(),
-			sub_layout[1],
-		);
-
-		f.render_widget(
-			Paragraph::new("  by Pete Goodfellow  ")
-				.alignment(Alignment::Right)
-				.block(
-					Block::default()
-						.borders(Borders::ALL)
-						.border_type(BorderType::Thick)
-						.yellow(),
-				),
-			layout[1],
+			area,
 		);
 	}
 }
@@ -127,7 +164,6 @@ impl Default for Gameplay<'_> {
 	fn default() -> Self {
 		Self {
 			title: "Adventuring...",
-			input: String::new(),
 		}
 	}
 }

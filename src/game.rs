@@ -18,12 +18,13 @@ pub struct Mob<'a> {
 	pub hp: u8,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Class {
+	Unknown,
 	Vagrant,
 	Conscript,
-	Magician,
+	Pilgrim,
 }
 impl Class {
-	pub const ALL: [Self; 3] = [Self::Vagrant, Self::Conscript, Self::Magician];
+	pub const ALL: [Self; 3] = [Self::Vagrant, Self::Conscript, Self::Pilgrim];
 }
