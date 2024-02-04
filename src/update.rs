@@ -1,8 +1,6 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
-use crate::app::{App, InputTarget};
-
-pub fn update(app: &mut App, key_event: KeyEvent) {
+pub fn update(app: &mut crate::app::App, key_event: KeyEvent) {
 	match key_event.code {
 		KeyCode::Esc => app.quit(),
 		KeyCode::Char('c') | KeyCode::Char('C') => {
@@ -10,12 +8,11 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
 				app.quit()
 			}
 		}
-		//    KeyCode::Right | KeyCode::Char('j') => app.increment_counter(),
-		//    KeyCode::Left | KeyCode::Char('k') => app.decrement_counter(),
 		KeyCode::Char(x) => {
-			if let Some(handler) = app.focus.last() {
+			let stack = app.focus;
+			if let Some(handler) = stack.last().as_mut() {
 				handler.handle_input(&app.input, x)
-			}	
+			}
 		}
 		_ => {}
 	};
