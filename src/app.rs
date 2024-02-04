@@ -1,5 +1,5 @@
 use crate::{
-	chargen::{Chargen, Gameplay},
+	chargen::Chargen,
 	game::{Class, Doctrine, Mob, Position},
 };
 
