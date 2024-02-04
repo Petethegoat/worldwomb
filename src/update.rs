@@ -13,7 +13,7 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
 		//    KeyCode::Right | KeyCode::Char('j') => app.increment_counter(),
 		//    KeyCode::Left | KeyCode::Char('k') => app.decrement_counter(),
 		KeyCode::Char(x) => {
-			if let Some(handler) = app.focus.first() {
+			if let Some(handler) = app.focus.last() {
 				handler.handle_input(&app.input, x)
 			}	
 		}

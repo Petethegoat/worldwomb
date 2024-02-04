@@ -1,20 +1,23 @@
+
+
 use crate::{
-	chargen::{Chargen},
+	chargen::{Chargen, Gameplay},
 	game::{Class, Mob, Position},
 };
 
 pub const TITLE: &str = "Worldwomb";
 
+#[derive(Debug)]
 pub enum GameScreen<'a> {
 	ScreenChargen { screen: Chargen<'a> },
-//	ScreenGameplay { screen: Gameplay<'a> },
+	ScreenGameplay { screen: Gameplay<'a> },
 }
 
 impl InputTarget for GameScreen<'_> {
-	fn handle_input(&self, mut app: &String, c: char) {
+	fn handle_input(&self, app: &String, c: char) {
 		match self {
 			GameScreen::ScreenChargen { screen } => screen.handle_input(app, c),
-		//	GameScreen::ScreenGameplay { screen } => screen.handle_input(app, c),
+			GameScreen::ScreenGameplay { screen } => screen.handle_input(app, c),
 		}
 	}
 }
@@ -23,6 +26,7 @@ impl Renderer for GameScreen<'_> {
     fn render_ui(&self, app: &App, f: &mut ratatui::Frame) {
         match self {
             GameScreen::ScreenChargen { screen } => screen.render_ui(app, f),
+            GameScreen::ScreenGameplay { screen } => screen.render_ui(app, f),
         }
     }
 }
@@ -46,7 +50,7 @@ impl App<'_> {
 	pub fn new() -> Self {
 		Self {
 			should_quit: false,
-			focus: vec![GameScreen::ScreenChargen{screen: Chargen::default()}],
+			focus: vec![GameScreen::ScreenChargen{screen: Chargen::default()}, GameScreen::ScreenGameplay { screen: Gameplay::default() }],
 			player: Mob {
 				name: "Player",
 				class: Class::Conscript,
@@ -60,6 +64,11 @@ impl App<'_> {
 	pub fn tick(&mut self) {}
 
 	pub fn quit(&mut self) {
-		self.should_quit = true;
+        if self.focus.is_empty() {
+            self.should_quit = true;
+        }
+        else {
+            self.focus.pop();
+        }
 	}
 }
