@@ -44,7 +44,7 @@ pub struct App {
 	pub player: Mob,
 	pub player_doctrine: Doctrine,
 	pub help_text: String,
-    pub location: String,
+	pub location: String,
 }
 
 impl App {
@@ -67,7 +67,7 @@ impl App {
 			},
 			player_doctrine: Doctrine::Unknown,
 			help_text: String::from(HELP_CONTINUE),
-            location: String::from("Beyond the Walls"),
+			location: String::from("Beyond the Walls"),
 		}
 	}
 

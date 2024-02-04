@@ -1,12 +1,16 @@
 use crate::{
-	app::{App, InputTarget, Renderer, HELP_CONTINUE, TITLE},
+	app::{App, InputTarget, Renderer, HELP_CONTINUE},
 	game::{Class, Doctrine},
 };
 use crossterm::event::KeyCode;
 use ratatui::{
 	layout::{Alignment, Rect},
 	style::{Color, Stylize},
-	widgets::{block::Position, canvas::{Canvas, Line, Map, MapResolution, Points, Rectangle}, Block, BorderType, Borders, Paragraph, Wrap},
+	widgets::{
+		block::Position,
+		canvas::{Canvas, Points},
+		Block, BorderType, Borders, Paragraph, Wrap,
+	},
 	Frame,
 };
 
@@ -157,6 +161,7 @@ impl InputTarget for Chargen {
 			ChargenStage::Farewell => {
 				if let KeyCode::Enter = c {
 					app.location = String::from("Within the Worldwomb");
+					app.help_text = String::from("Use arrows or WASD to traverse the Worldwomb.");
 					app.pop_screen();
 				}
 			}
@@ -198,10 +203,10 @@ pub struct Gameplay {}
 impl InputTarget for Gameplay {
 	fn handle_input(&mut self, app: &mut App, c: crossterm::event::KeyCode) {
 		match c {
-			KeyCode::Left => app.player.pos.x -= 1,
-			KeyCode::Right => app.player.pos.x += 1,
-			KeyCode::Up => app.player.pos.y += 1,
-			KeyCode::Down => app.player.pos.y -= 1,
+			KeyCode::Left | KeyCode::Char('a') => app.player.pos.x -= 1,
+			KeyCode::Right | KeyCode::Char('d') => app.player.pos.x += 1,
+			KeyCode::Up | KeyCode::Char('w') => app.player.pos.y += 1,
+			KeyCode::Down | KeyCode::Char('s') => app.player.pos.y -= 1,
 			_ => {}
 		}
 	}
@@ -228,7 +233,7 @@ impl Renderer for Gameplay {
 						.title_position(Position::Bottom)
 						.yellow(),
 				),
-			area
+			area,
 		);
 	}
 }
