@@ -6,7 +6,7 @@ use crossterm::event::KeyCode;
 use ratatui::{
 	layout::{Alignment, Rect},
 	style::Stylize,
-	widgets::{block::Position, Block, BorderType, Borders, Clear, Paragraph, Widget},
+	widgets::{block::Position, Block, BorderType, Borders, Paragraph},
 	Frame,
 };
 
@@ -76,7 +76,7 @@ impl InputTarget for Chargen<'_> {
 						app.player.name = "Cochran";
 						self.stage = ChargenStage::Farewell;
 					}
-					KeyCode::Char(c) => {
+					KeyCode::Char(_c) => {
 						//	let mut new = self.name.to_string();
 						//	new.push(c);
 						//	self.name = &new;
@@ -132,7 +132,7 @@ pub struct Gameplay<'a> {
 }
 
 impl InputTarget for Gameplay<'_> {
-	fn handle_input(&mut self, app: &mut App, _c: crossterm::event::KeyCode) {
+	fn handle_input(&mut self, _app: &mut App, _c: crossterm::event::KeyCode) {
 		//	app = &c.to_string();
 	}
 }
