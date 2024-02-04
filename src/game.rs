@@ -11,8 +11,8 @@ impl fmt::Display for Position {
 	}
 }
 
-pub struct Mob<'a> {
-	pub name: &'a str,
+pub struct Mob {
+	pub name: String,
 	pub pos: Position,
 	pub class: Class,
 	pub hp: u8,
@@ -27,4 +27,21 @@ pub enum Class {
 }
 impl Class {
 	pub const ALL: [Self; 3] = [Self::Vagrant, Self::Conscript, Self::Pilgrim];
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum Doctrine {
+	Unknown,
+	Naught,
+	Power,
+	Knowledge,
+	Camaraderie,
+}
+impl Doctrine {
+	pub const ALL: [Self; 4] = [
+		Self::Naught,
+		Self::Power,
+		Self::Knowledge,
+		Self::Camaraderie,
+	];
 }

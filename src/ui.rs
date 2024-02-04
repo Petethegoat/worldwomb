@@ -1,8 +1,5 @@
 use crate::app::{App, Renderer};
-use ratatui::{
-	prelude::*,
-	widgets::{block::Position, *},
-};
+use ratatui::{prelude::*, widgets::*};
 
 pub fn render(app: &mut App, f: &mut ratatui::Frame) {
 	let layout = Layout::default()
@@ -16,21 +13,23 @@ pub fn render(app: &mut App, f: &mut ratatui::Frame) {
 		.split(layout[0]);
 
 	f.render_widget(
-		Paragraph::new(format!("{:?}\n{}", app.player.class, app.player.hp)).block(
+		Paragraph::new(format!(
+			"{:?}\n{} hp\nIn pursuit of: {:?}",
+			app.player.class, app.player.hp, app.player_doctrine
+		))
+		.block(
 			Block::new()
 				.borders(Borders::ALL)
 				.border_type(BorderType::Rounded)
-				.title(app.player.name)
-				.title_alignment(Alignment::Center)
-				.title_position(Position::Bottom)
+				.title(&*app.player.name)
 				.yellow(),
 		),
 		sub_layout[1],
 	);
 
 	f.render_widget(
-		Paragraph::new("  by Pete Goodfellow  ")
-			.alignment(Alignment::Right)
+		Paragraph::new(&*app.help_text)
+			.alignment(Alignment::Center)
 			.block(
 				Block::default()
 					.borders(Borders::ALL)

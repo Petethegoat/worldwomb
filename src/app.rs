@@ -1,17 +1,18 @@
 use crate::{
 	chargen::{Chargen, Gameplay},
-	game::{Class, Mob, Position},
+	game::{Class, Doctrine, Mob, Position},
 };
 
 pub const TITLE: &str = "Worldwomb";
+pub const HELP_CONTINUE: &str = "Press enter to continue.";
 
 #[derive(Copy, Clone)]
-pub enum GameScreen<'a> {
-	ScreenChargen { screen: Chargen<'a> },
-	ScreenGameplay { screen: Gameplay<'a> },
+pub enum GameScreen {
+	ScreenChargen { screen: Chargen },
+	ScreenGameplay { screen: Gameplay },
 }
 
-impl GameScreen<'_> {
+impl GameScreen {
 	pub fn handle_input(&mut self, app: &mut App, c: crossterm::event::KeyCode) {
 		match self {
 			GameScreen::ScreenChargen { ref mut screen } => screen.handle_input(app, c),
@@ -20,7 +21,7 @@ impl GameScreen<'_> {
 	}
 }
 
-impl Renderer for GameScreen<'_> {
+impl Renderer for GameScreen {
 	fn render_ui(&self, app: &App, f: &mut ratatui::Frame, area: ratatui::prelude::Rect) {
 		match self {
 			GameScreen::ScreenChargen { screen } => screen.render_ui(app, f, area),
@@ -37,13 +38,16 @@ pub trait Renderer {
 	fn render_ui(&self, app: &App, f: &mut ratatui::Frame, area: ratatui::prelude::Rect);
 }
 
-pub struct App<'a> {
+pub struct App {
 	pub should_quit: bool,
-	pub focus: Vec<GameScreen<'a>>,
-	pub player: Mob<'a>,
+	pub focus: Vec<GameScreen>,
+	pub player: Mob,
+	pub player_doctrine: Doctrine,
+	pub help_text: String,
+    pub location: String,
 }
 
-impl App<'_> {
+impl App {
 	pub fn new() -> Self {
 		Self {
 			should_quit: false,
@@ -56,11 +60,14 @@ impl App<'_> {
 				},
 			],
 			player: Mob {
-				name: "Player",
+				name: String::from("Player"),
 				class: Class::Unknown,
 				pos: Position { x: 0, y: 0 },
 				hp: 5,
 			},
+			player_doctrine: Doctrine::Unknown,
+			help_text: String::from(HELP_CONTINUE),
+            location: String::from("Beyond the Walls"),
 		}
 	}
 
@@ -75,7 +82,6 @@ impl App<'_> {
 	}
 
 	pub fn pop_screen(&mut self) {
-		println!("popp");
 		if let None = self.focus.pop() {
 			panic!("No screens left to pop.")
 		}
