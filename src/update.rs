@@ -1,6 +1,6 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
-use crate::app::App;
+use crate::app::{App, InputTarget};
 
 pub fn update(app: &mut App, key_event: KeyEvent) {
 	match key_event.code {
@@ -13,9 +13,9 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
 		//    KeyCode::Right | KeyCode::Char('j') => app.increment_counter(),
 		//    KeyCode::Left | KeyCode::Char('k') => app.decrement_counter(),
 		KeyCode::Char(x) => {
-			for handler in app.focus.iter() {
-				handler.handle_input(x)
-			}
+			if let Some(handler) = app.focus.first() {
+				handler.handle_input(&app.input, x)
+			}	
 		}
 		_ => {}
 	};

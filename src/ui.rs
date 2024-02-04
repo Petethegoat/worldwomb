@@ -4,7 +4,7 @@ use ratatui::{
 	widgets::{block::*, Block, BorderType, Borders, Paragraph},
 };
 
-use crate::app::{App, TITLE};
+use crate::app::{App, GameScreen, Renderer, TITLE};
 
 //unused
 pub enum GameLayout {
@@ -14,6 +14,10 @@ pub enum GameLayout {
 }
 
 pub fn render(app: &mut App, f: &mut Frame) {
+	if let Some(renderer) = app.focus.first() {
+		renderer.render_ui(app, f);
+	}
+	return;
 	let yellow_round = Style::default().yellow();
 
 	let layout = Layout::default()
