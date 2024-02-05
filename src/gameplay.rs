@@ -1,18 +1,12 @@
 use crate::{
-	app::{App, InputTarget, Renderer, HELP_CONTINUE},
-	game::{Class, Doctrine},
+	app::{App, InputTarget, Renderer},
+	ui::CellDraw,
 };
 use crossterm::event::KeyCode;
-use ratatui::{
-	layout::{Alignment, Rect}, style::{Color, Stylize}, terminal, widgets::{
-		block::Position,
-		canvas::{Canvas, Points},
-		Block, BorderType, Borders, Paragraph, Wrap,
-	}, Frame
-};
+use ratatui::{layout::Rect, widgets::Widget, Frame};
 
 #[derive(Copy, Clone)]
-pub struct Gameplay {}
+pub struct Gameplay;
 
 impl InputTarget for Gameplay {
 	fn handle_input(&mut self, app: &mut App, c: crossterm::event::KeyCode) {
@@ -28,27 +22,12 @@ impl InputTarget for Gameplay {
 
 impl Renderer for Gameplay {
 	fn render_ui(&self, app: &crate::app::App, f: &mut Frame, area: Rect) {
-		f.render_widget(
-			Canvas::default()
-				.x_bounds([-4.0, 4.0])
-				.y_bounds([-4.0, 4.0])
-				.paint(|ctx| {
-					ctx.draw(&Points {
-						coords: &[(app.player.pos.x.into(), app.player.pos.y.into())],
-						color: Color::Red,
-					});
-				})
-				.block(
-					Block::default()
-						.borders(Borders::ALL)
-						.border_type(BorderType::Rounded)
-						.title(&*app.location)
-						.title_alignment(Alignment::Center)
-						.title_position(Position::Bottom)
-						.yellow(),
-				),
-			area,
-		);
+		CellDraw {
+			char: '@',
+			x: app.player.pos.x.try_into().unwrap(),
+			y: app.player.pos.y.try_into().unwrap(),
+		}
+		.render(area, f.buffer_mut())
 	}
 }
 

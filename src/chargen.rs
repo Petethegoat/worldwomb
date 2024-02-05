@@ -4,7 +4,10 @@ use crate::{
 };
 use crossterm::event::KeyCode;
 use ratatui::{
-	layout::{Alignment, Rect}, style::Stylize, widgets::{block::Position, Block, BorderType, Borders, Paragraph, Wrap}, Frame
+	layout::{Alignment, Rect},
+	style::Stylize,
+	widgets::{block::Position, Block, BorderType, Borders, Paragraph, Wrap},
+	Frame,
 };
 
 #[derive(Copy, Clone)]

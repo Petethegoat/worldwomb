@@ -2,6 +2,7 @@ pub mod app;
 pub mod chargen;
 pub mod event;
 pub mod game;
+pub mod gameplay;
 pub mod tui;
 pub mod ui;
 pub mod update;

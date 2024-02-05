@@ -1,6 +1,18 @@
 use crate::app::{App, Renderer};
 use ratatui::{prelude::*, widgets::*};
 
+#[derive(Default)]
+pub struct CellDraw {
+	pub char: char,
+	pub x: u16,
+	pub y: u16,
+}
+impl Widget for CellDraw {
+	fn render(self, _area: Rect, buf: &mut Buffer) {
+		buf.get_mut(self.x, self.y).set_char(self.char);
+	}
+}
+
 pub fn render(app: &mut App, f: &mut ratatui::Frame) {
 	let layout = Layout::default()
 		.direction(Direction::Vertical)

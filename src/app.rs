@@ -1,6 +1,7 @@
 use crate::{
 	chargen::Chargen,
 	game::{Class, Doctrine, Mob, Position},
+	gameplay::Gameplay,
 };
 
 pub const TITLE: &str = "Worldwomb";
