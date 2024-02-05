@@ -16,6 +16,7 @@ pub struct Mob {
 	pub pos: Position,
 	pub class: Class,
 	pub hp: u8,
+	pub hp_max: u8,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]

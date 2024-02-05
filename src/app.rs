@@ -1,3 +1,5 @@
+use rand::rngs::ThreadRng;
+
 use crate::{
 	chargen::Chargen,
 	game::{Class, Doctrine, Mob, Position},
@@ -46,6 +48,9 @@ pub struct App {
 	pub player_doctrine: Doctrine,
 	pub help_text: String,
 	pub location: String,
+	pub rng: ThreadRng,
+
+	should_pop: bool,
 }
 
 impl App {
@@ -61,30 +66,39 @@ impl App {
 				},
 			],
 			player: Mob {
-				name: String::from("Player"),
+				name: String::new(),
 				class: Class::Unknown,
 				pos: Position { x: 0, y: 0 },
-				hp: 5,
+				hp: 0,
+				hp_max: 0,
 			},
 			player_doctrine: Doctrine::Unknown,
 			help_text: String::from(HELP_CONTINUE),
 			location: String::from("Beyond the Walls"),
+			rng: rand::thread_rng(),
+			should_pop: false,
 		}
 	}
 
-	pub fn tick(&mut self) {}
+	pub fn tick(&mut self) {
+		//	self.help_text = format!("{}", self.rng.gen_range(1..100));
+	}
 
 	pub fn quit(&mut self) {
-		if self.focus.len() <= 1 {
-			self.should_quit = true;
-		} else {
-			self.focus.pop();
-		}
+		self.should_quit = true;
 	}
 
+	/// Queue up the pop for execution at the end of the frame.
 	pub fn pop_screen(&mut self) {
-		if let None = self.focus.pop() {
-			panic!("No screens left to pop.")
+		self.should_pop = true;
+	}
+
+	pub fn post_update(&mut self) {
+		if self.should_pop {
+			self.should_pop = false;
+			if let None = self.focus.pop() {
+				panic!("No screens left to pop.")
+			}
 		}
 	}
 }

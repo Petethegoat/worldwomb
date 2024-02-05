@@ -3,6 +3,7 @@ use crate::{
 	game::{Class, Doctrine},
 };
 use crossterm::event::KeyCode;
+use rand::Rng;
 use ratatui::{
 	layout::{Alignment, Rect},
 	style::Stylize,
@@ -135,6 +136,7 @@ impl InputTarget for Chargen {
 					}
 					_ => {}
 				}
+
 				if app.player_doctrine != Doctrine::Unknown {
 					self.stage = ChargenStage::Name;
 					app.player.name = String::new();
@@ -145,6 +147,9 @@ impl InputTarget for Chargen {
 				KeyCode::Enter => {
 					self.stage = ChargenStage::Farewell;
 					app.help_text = String::from(HELP_CONTINUE);
+
+					app.player.hp_max = app.rng.gen_range(1..=12);
+					app.player.hp = app.player.hp_max;
 				}
 				KeyCode::Backspace => {
 					app.player.name.pop();

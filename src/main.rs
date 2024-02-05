@@ -26,8 +26,11 @@ fn main() -> Result<()> {
 
 	while !app.should_quit {
 		tui.draw(&mut app)?;
+
 		match tui.events.next()? {
-			Event::Tick => {}
+			Event::Tick => {
+				app.tick();
+			}
 			Event::Key(key_event) => update(&mut app, key_event),
 			Event::Mouse(_) => {}
 			Event::Resize(_, _) => {}
@@ -35,6 +38,8 @@ fn main() -> Result<()> {
 				app.tick();
 			}
 		};
+
+		app.post_update();
 	}
 
 	tui.exit()?;
