@@ -108,7 +108,7 @@ pub fn render(app: &mut App, f: &mut ratatui::Frame) {
 
 	if let Some(modal) = &app.modal {
 		//Render modal
-		let modal_rect = centered_rect(sub_layout[0], 75, 60);
+		let modal_rect = centered_rect(sub_layout[0], 55, 40);
 		let modal_inner = modal_rect.inner(&Margin::new(5, 2));
 		let modal_chunks = Layout::default()
 			.direction(Direction::Vertical)
@@ -130,8 +130,9 @@ pub fn render(app: &mut App, f: &mut ratatui::Frame) {
 				.gray(),
 			modal_chunks[0],
 		);
+
 		f.render_widget(
-			Paragraph::new(&*modal.help)
+			Paragraph::new(modal.help.clone().line())
 				.right_aligned()
 				.wrap(Wrap { trim: true })
 				.gray(),

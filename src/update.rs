@@ -1,5 +1,6 @@
-use crate::app::App;
+use crate::app::{App, StyledLine};
 use crossterm::event::{KeyCode, KeyEvent};
+use ratatui::style::{Style, Stylize};
 
 fn go_for_quit(app: &mut App, c: crossterm::event::KeyCode) {
 	match c {
@@ -19,7 +20,18 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
 		KeyCode::Esc => app.set_modal(
 			String::from("Quit Game"),
 			"Do you really want to quit?".into(),
-			"Y / N to pick.".into(),
+			StyledLine {
+				text: [
+					String::from("‎"),
+					String::from(" Y / N "),
+					String::from(" to pick."),
+				],
+				styles: [
+					Style::default(),
+					Style::default().reversed(),
+					Style::default(),
+				],
+			},
 			go_for_quit,
 		),
 		x => {

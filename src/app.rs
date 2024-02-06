@@ -1,4 +1,8 @@
 use rand::rngs::ThreadRng;
+use ratatui::{
+	style::Style,
+	text::{Line, Span},
+};
 
 use crate::{
 	chargen::Chargen,
@@ -44,7 +48,7 @@ pub trait Renderer {
 pub struct Modal {
 	pub title: String,
 	pub text: String,
-	pub help: String,
+	pub help: StyledLine,
 	pub input: fn(app: &mut App, c: crossterm::event::KeyCode),
 }
 
@@ -114,7 +118,7 @@ impl App {
 		&mut self,
 		title: String,
 		text: String,
-		help: String,
+		help: StyledLine,
 		input: fn(app: &mut App, c: crossterm::event::KeyCode),
 	) {
 		self.modal = Some(Modal {
@@ -127,5 +131,19 @@ impl App {
 
 	pub fn clear_modal(&mut self) {
 		self.modal = Option::None;
+	}
+}
+
+#[derive(Clone)]
+pub struct StyledLine {
+	pub text: [String; 3],
+	pub styles: [Style; 3],
+}
+impl StyledLine {
+	pub fn line(self) -> Line<'static> {
+		let s1 = Span::raw(self.text[0].clone()).style(self.styles[0]);
+		let s2 = Span::raw(self.text[1].clone()).style(self.styles[1]);
+		let s3 = Span::raw(self.text[2].clone()).style(self.styles[2]);
+		Line::from(vec![s1, s2, s3])
 	}
 }
