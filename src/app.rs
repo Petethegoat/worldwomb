@@ -1,5 +1,4 @@
 use rand::rngs::ThreadRng;
-use ratatui::text::Line;
 
 use crate::{
 	chargen::Chargen,
@@ -111,8 +110,13 @@ impl App {
 		}
 	}
 
-	pub fn set_modal(&mut self, title: String, text: String, help: String, input: fn(app: &mut App, c: crossterm::event::KeyCode))
-	{
+	pub fn set_modal(
+		&mut self,
+		title: String,
+		text: String,
+		help: String,
+		input: fn(app: &mut App, c: crossterm::event::KeyCode),
+	) {
 		self.modal = Some(Modal {
 			title,
 			text,
@@ -121,8 +125,7 @@ impl App {
 		})
 	}
 
-	pub fn clear_modal(&mut self)
-	{
+	pub fn clear_modal(&mut self) {
 		self.modal = Option::None;
 	}
 }
