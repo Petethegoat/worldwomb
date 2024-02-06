@@ -41,14 +41,14 @@ pub trait Renderer {
 	fn render_ui(&self, app: &App, f: &mut ratatui::Frame, area: ratatui::prelude::Rect);
 }
 
-pub struct Modal {
+pub struct Modal<'a> {
 	pub title: String,
 	pub text: String,
-	pub help: String,
+	pub help: ratatui::text::Line<'a>,
 	pub input: fn(app: &mut App, c: crossterm::event::KeyCode),
 }
 
-pub struct App {
+pub struct App<'a> {
 	pub should_quit: bool,
 	pub focus: Vec<GameScreen>,
 	pub player: Mob,
@@ -56,11 +56,11 @@ pub struct App {
 	pub help_text: String,
 	pub location: String,
 	pub rng: ThreadRng,
-	pub modal: Option<Modal>,
+	pub modal: Option<Modal<'a>>,
 	should_pop: bool,
 }
 
-impl App {
+impl App<'_> {
 	pub fn new() -> Self {
 		Self {
 			should_quit: false,
@@ -110,13 +110,13 @@ impl App {
 		}
 	}
 
-	pub fn set_modal(
-		&mut self,
+	pub fn set_modal<'a, 'b>(
+		&'a mut self,
 		title: String,
 		text: String,
-		help: String,
+		help: ratatui::text::Line<'b>,
 		input: fn(app: &mut App, c: crossterm::event::KeyCode),
-	) {
+	) where 'b : 'a {
 		self.modal = Some(Modal {
 			title,
 			text,

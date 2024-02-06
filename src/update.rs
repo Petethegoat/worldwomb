@@ -19,7 +19,7 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
 		KeyCode::Esc => app.set_modal(
 			String::from("Quit Game"),
 			"Do you really want to quit?".into(),
-			"Y / N to pick.".into(),
+			ratatui::text::Line::from("Y / N to pick."),
 			go_for_quit,
 		),
 		x => {

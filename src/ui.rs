@@ -131,7 +131,7 @@ pub fn render(app: &mut App, f: &mut ratatui::Frame) {
 			modal_chunks[0],
 		);
 		f.render_widget(
-			Paragraph::new(&*modal.help)
+			Paragraph::new(modal.help.clone())
 				.right_aligned()
 				.wrap(Wrap { trim: true })
 				.gray(),
