@@ -35,8 +35,8 @@ impl Renderer for Gameplay {
 	fn render_ui(&self, app: &crate::app::App, f: &mut Frame, area: Rect) {
 		CellDraw {
 			char: '@',
-			x: app.player.pos.x.try_into().unwrap(),
-			y: app.player.pos.y.try_into().unwrap(),
+			x: app.player.pos.x,
+			y: app.player.pos.y,
 			color: ratatui::style::Color::Gray,
 		}
 		.render(area, f.buffer_mut())

@@ -1,8 +1,8 @@
 use std::fmt;
 
 pub struct Position {
-	pub x: i32,
-	pub y: i32,
+	pub x: u16,
+	pub y: u16,
 }
 
 impl fmt::Display for Position {

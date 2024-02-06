@@ -1,4 +1,5 @@
 use rand::rngs::ThreadRng;
+use ratatui::text::Line;
 
 use crate::{
 	chargen::Chargen,
@@ -41,6 +42,13 @@ pub trait Renderer {
 	fn render_ui(&self, app: &App, f: &mut ratatui::Frame, area: ratatui::prelude::Rect);
 }
 
+pub struct Modal {
+	pub title: String,
+	pub text: String,
+	pub help: String,
+	pub input: fn(app: &mut App, c: crossterm::event::KeyCode),
+}
+
 pub struct App {
 	pub should_quit: bool,
 	pub focus: Vec<GameScreen>,
@@ -49,7 +57,7 @@ pub struct App {
 	pub help_text: String,
 	pub location: String,
 	pub rng: ThreadRng,
-
+	pub modal: Option<Modal>,
 	should_pop: bool,
 }
 
@@ -68,7 +76,7 @@ impl App {
 			player: Mob {
 				name: String::new(),
 				class: Class::Unknown,
-				pos: Position { x: 0, y: 0 },
+				pos: Position { x: 4, y: 2 },
 				hp: 0,
 				hp_max: 0,
 			},
@@ -76,6 +84,7 @@ impl App {
 			help_text: String::from(HELP_CONTINUE),
 			location: String::from("Beyond the Walls"),
 			rng: rand::thread_rng(),
+			modal: Option::None,
 			should_pop: false,
 		}
 	}
@@ -100,5 +109,20 @@ impl App {
 				panic!("No screens left to pop.")
 			}
 		}
+	}
+
+	pub fn set_modal(&mut self, title: String, text: String, help: String, input: fn(app: &mut App, c: crossterm::event::KeyCode))
+	{
+		self.modal = Some(Modal {
+			title,
+			text,
+			help,
+			input,
+		})
+	}
+
+	pub fn clear_modal(&mut self)
+	{
+		self.modal = Option::None;
 	}
 }

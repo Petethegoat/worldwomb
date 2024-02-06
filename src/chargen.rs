@@ -6,8 +6,7 @@ use crossterm::event::KeyCode;
 use rand::Rng;
 use ratatui::{
 	layout::{Alignment, Rect},
-	style::Stylize,
-	widgets::{block::Position, Block, BorderType, Borders, Paragraph, Wrap},
+	widgets::{Paragraph, Wrap},
 	Frame,
 };
 
@@ -174,18 +173,9 @@ impl Renderer for Chargen {
 	fn render_ui(&self, app: &crate::app::App, f: &mut Frame, area: Rect) {
 		f.render_widget(
 			Paragraph::new(Chargen::get_render_text(self, app))
-				.wrap(Wrap::default())
-				.block(
-					Block::default()
-						.borders(Borders::ALL)
-						.border_type(BorderType::Rounded)
-						.title(&*app.location)
-						.title_alignment(Alignment::Center)
-						.title_position(Position::Bottom)
-						.yellow(),
-				)
+				.wrap(Wrap { trim: true })
 				.alignment(Alignment::Center),
-			area,
+			area.inner(&ratatui::layout::Margin::new(1, 1)),
 		)
 	}
 }
