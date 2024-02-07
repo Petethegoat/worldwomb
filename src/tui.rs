@@ -56,8 +56,8 @@ impl Tui {
 	///
 	/// [`Draw`]: tui::Terminal::draw
 	/// [`rendering`]: crate::ui:render
-	pub fn draw(&mut self, app: &mut App) -> Result<()> {
-		self.terminal.draw(|frame| ui::render(app, frame))?;
+	pub fn draw(&mut self, a: &mut App) -> Result<()> {
+		self.terminal.draw(|frame| ui::render(a, frame))?;
 		Ok(())
 	}
 

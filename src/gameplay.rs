@@ -1,5 +1,6 @@
 use crate::{
 	app::{App, InputTarget, Renderer},
+	map::{tile, TileType},
 	ui::CellDraw,
 };
 use crossterm::event::KeyCode;
@@ -8,38 +9,72 @@ use ratatui::{layout::Rect, widgets::Widget, Frame};
 #[derive(Copy, Clone)]
 pub struct Gameplay;
 
+fn try_move(x: i32, y: i32, a: &mut App) {
+	if a.map[tile(a.player.pos.x + x, a.player.pos.y + y)] == TileType::Floor {
+		a.player.pos.x += x;
+		a.player.pos.y += y;
+	}
+}
+
 impl InputTarget for Gameplay {
-	fn handle_input(&mut self, app: &mut App, c: crossterm::event::KeyCode) {
-		if app.player.hp <= 0 {
+	fn handle_input(&mut self, a: &mut App, c: crossterm::event::KeyCode) {
+		if a.player.hp <= 0 {
 			return;
 		}
 
+		let prev_pos = a.player.pos.clone();
+
 		match c {
-			KeyCode::Left | KeyCode::Char('a') => app.player.pos.x -= 1,
-			KeyCode::Right | KeyCode::Char('d') => app.player.pos.x += 1,
-			KeyCode::Up | KeyCode::Char('w') => app.player.pos.y -= 1,
-			KeyCode::Down | KeyCode::Char('s') => app.player.pos.y += 1,
+			KeyCode::Left | KeyCode::Char('a') => try_move(-1, 0, a),
+			KeyCode::Right | KeyCode::Char('d') => try_move(1, 0, a),
+			KeyCode::Up | KeyCode::Char('w') => try_move(0, -1, a),
+			KeyCode::Down | KeyCode::Char('s') => try_move(0, 1, a),
 			_ => return,
 		}
 
-		if app.player.hp > 0 {
-			app.player.hp -= 1;
-			if app.player.hp == 0 {
-				app.help_text = String::from("You have perished. Press escape to quit.");
+		if a.player.pos != prev_pos {
+			if a.player.hp > 0 {
+				a.player.hp -= 1;
+				if a.player.hp == 0 {
+					a.help_text = String::from("You have perished. Press escape to quit.");
+				}
 			}
 		}
 	}
 }
 
 impl Renderer for Gameplay {
-	fn render_ui(&self, app: &crate::app::App, f: &mut Frame, area: Rect) {
+	fn render_ui(&self, a: &crate::app::App, f: &mut Frame, area: Rect) {
+		let x_off: i32 = area.x.into();
+		let y_off: i32 = area.y.into();
+
 		CellDraw {
 			char: '@',
-			x: app.player.pos.x,
-			y: app.player.pos.y,
+			x: <i32 as TryInto<u16>>::try_into(a.player.pos.x + x_off).unwrap(),
+			y: <i32 as TryInto<u16>>::try_into(a.player.pos.y + y_off).unwrap(),
 			color: ratatui::style::Color::Gray,
 		}
-		.render(area, f.buffer_mut())
+		.render(area, f.buffer_mut());
+
+		let mut x: i32 = area.x.into();
+		let mut y: i32 = area.y.into();
+		for cell in a.map.iter() {
+			if let TileType::Wall = cell {
+				CellDraw {
+					char: '#',
+					x: x.try_into().unwrap(),
+					y: y.try_into().unwrap(),
+					color: ratatui::style::Color::Gray,
+				}
+				.render(area, f.buffer_mut());
+			}
+
+			x += 1;
+			if x >= crate::map::WIDTH + x_off as i32 {
+				x = area.x.into();
+				y += 1;
+			}
+		}
 	}
 }
 

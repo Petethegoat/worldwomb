@@ -25,7 +25,7 @@ enum ChargenStage {
 }
 
 impl Chargen {
-	pub fn get_render_text(&self, app: &App) -> String {
+	pub fn get_render_text(&self, a: &App) -> String {
 		match self.stage {
 			ChargenStage::Intro => {
 				format!("\
@@ -58,17 +58,17 @@ impl Chargen {
 			ChargenStage::Name => {
 				format!(
 					"\"And thy name, {:?}?\"\n\n{}",
-					app.player.class, app.player.name
+					a.player.class, a.player.name
 				)
 			}
 			ChargenStage::Farewell => {
-				if let Class::Vagrant = app.player.class {
+				if let Class::Vagrant = a.player.class {
 					format!(
 						"\"Heed my words, {:?}.\n\nBeware the Worldwomb.\"",
-						app.player.class
+						a.player.class
 					)
 				} else {
-					match app.player_doctrine {
+					match a.player_doctrine {
 						Doctrine::Camaraderie => {
 							format!(
 							"\"Thy will find no companionship within those walls.\nHeed my words.\n\nBeware the Worldwomb.\"",
@@ -82,7 +82,7 @@ impl Chargen {
 						_ => {
 							format!(
 							"\"{}, I fare thee well.\nBut heed my words.\n\nBeware the Worldwomb.\"",
-							app.player.name
+							a.player.name
 						)
 						}
 					}
@@ -93,76 +93,76 @@ impl Chargen {
 }
 
 impl InputTarget for Chargen {
-	fn handle_input(&mut self, app: &mut App, c: crossterm::event::KeyCode) {
+	fn handle_input(&mut self, a: &mut App, c: crossterm::event::KeyCode) {
 		match self.stage {
 			ChargenStage::Intro => {
 				if let KeyCode::Enter = c {
 					self.stage = ChargenStage::Class;
-					app.help_text = String::from("Press 1-3 to select class.");
+					a.help_text = String::from("Press 1-3 to select class.");
 				}
 			}
 			ChargenStage::Class => {
 				match c {
 					KeyCode::Char('1') => {
-						app.player.class = Class::Vagrant;
+						a.player.class = Class::Vagrant;
 					}
 					KeyCode::Char('2') => {
-						app.player.class = Class::Conscript;
+						a.player.class = Class::Conscript;
 					}
 					KeyCode::Char('3') => {
-						app.player.class = Class::Pilgrim;
+						a.player.class = Class::Pilgrim;
 					}
 					_ => {}
 				}
-				if app.player.class != Class::Unknown {
+				if a.player.class != Class::Unknown {
 					self.stage = ChargenStage::Doctrine;
-					app.help_text = String::from("Press 1-4 to select doctrine.");
+					a.help_text = String::from("Press 1-4 to select doctrine.");
 				}
 			}
 			ChargenStage::Doctrine => {
 				match c {
 					KeyCode::Char('1') => {
-						app.player_doctrine = Doctrine::Naught;
+						a.player_doctrine = Doctrine::Naught;
 					}
 					KeyCode::Char('2') => {
-						app.player_doctrine = Doctrine::Power;
+						a.player_doctrine = Doctrine::Power;
 					}
 					KeyCode::Char('3') => {
-						app.player_doctrine = Doctrine::Knowledge;
+						a.player_doctrine = Doctrine::Knowledge;
 					}
 					KeyCode::Char('4') => {
-						app.player_doctrine = Doctrine::Camaraderie;
+						a.player_doctrine = Doctrine::Camaraderie;
 					}
 					_ => {}
 				}
 
-				if app.player_doctrine != Doctrine::Unknown {
+				if a.player_doctrine != Doctrine::Unknown {
 					self.stage = ChargenStage::Name;
-					app.player.name = String::new();
-					app.help_text = String::from("Enter your name, and press enter to continue.");
+					a.player.name = String::new();
+					a.help_text = String::from("Enter your name, and press enter to continue.");
 				}
 			}
 			ChargenStage::Name => match c {
 				KeyCode::Enter => {
 					self.stage = ChargenStage::Farewell;
-					app.help_text = String::from(HELP_CONTINUE);
+					a.help_text = String::from(HELP_CONTINUE);
 
-					app.player.hp_max = app.rng.gen_range(1..=12);
-					app.player.hp = app.player.hp_max;
+					a.player.hp_max = a.rng.gen_range(100..=120);
+					a.player.hp = a.player.hp_max;
 				}
 				KeyCode::Backspace => {
-					app.player.name.pop();
+					a.player.name.pop();
 				}
 				KeyCode::Char(c) => {
-					app.player.name.push(c);
+					a.player.name.push(c);
 				}
 				_ => {}
 			},
 			ChargenStage::Farewell => {
 				if let KeyCode::Enter = c {
-					app.location = String::from("Within the Worldwomb");
-					app.help_text = String::from("Use arrows or WASD to traverse the Worldwomb.");
-					app.pop_screen();
+					a.location = String::from("Within the Worldwomb");
+					a.help_text = String::from("Use arrows or WASD to traverse the Worldwomb.");
+					a.pop_screen();
 				}
 			}
 		}
@@ -170,9 +170,9 @@ impl InputTarget for Chargen {
 }
 
 impl Renderer for Chargen {
-	fn render_ui(&self, app: &crate::app::App, f: &mut Frame, area: Rect) {
+	fn render_ui(&self, a: &crate::app::App, f: &mut Frame, area: Rect) {
 		f.render_widget(
-			Paragraph::new(Chargen::get_render_text(self, app))
+			Paragraph::new(Chargen::get_render_text(self, a))
 				.wrap(Wrap { trim: true })
 				.alignment(Alignment::Center),
 			area.inner(&ratatui::layout::Margin::new(1, 1)),

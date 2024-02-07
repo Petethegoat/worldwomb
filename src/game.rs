@@ -1,8 +1,9 @@
 use std::fmt;
 
+#[derive(Copy, Clone, PartialEq)]
 pub struct Position {
-	pub x: u16,
-	pub y: u16,
+	pub x: i32,
+	pub y: i32,
 }
 
 impl fmt::Display for Position {

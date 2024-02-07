@@ -8,6 +8,7 @@ use crate::{
 	chargen::Chargen,
 	game::{Class, Doctrine, Mob, Position},
 	gameplay::Gameplay,
+	map::{self, TileType},
 };
 
 pub const TITLE: &str = "Worldwomb";
@@ -20,36 +21,36 @@ pub enum GameScreen {
 }
 
 impl GameScreen {
-	pub fn handle_input(&mut self, app: &mut App, c: crossterm::event::KeyCode) {
+	pub fn handle_input(&mut self, a: &mut App, c: crossterm::event::KeyCode) {
 		match self {
-			GameScreen::ScreenChargen { ref mut screen } => screen.handle_input(app, c),
-			GameScreen::ScreenGameplay { ref mut screen } => screen.handle_input(app, c),
+			GameScreen::ScreenChargen { ref mut screen } => screen.handle_input(a, c),
+			GameScreen::ScreenGameplay { ref mut screen } => screen.handle_input(a, c),
 		}
 	}
 }
 
 impl Renderer for GameScreen {
-	fn render_ui(&self, app: &App, f: &mut ratatui::Frame, area: ratatui::prelude::Rect) {
+	fn render_ui(&self, a: &App, f: &mut ratatui::Frame, area: ratatui::prelude::Rect) {
 		match self {
-			GameScreen::ScreenChargen { screen } => screen.render_ui(app, f, area),
-			GameScreen::ScreenGameplay { screen } => screen.render_ui(app, f, area),
+			GameScreen::ScreenChargen { screen } => screen.render_ui(a, f, area),
+			GameScreen::ScreenGameplay { screen } => screen.render_ui(a, f, area),
 		}
 	}
 }
 
 pub trait InputTarget {
-	fn handle_input(&mut self, app: &mut App, c: crossterm::event::KeyCode);
+	fn handle_input(&mut self, a: &mut App, c: crossterm::event::KeyCode);
 }
 
 pub trait Renderer {
-	fn render_ui(&self, app: &App, f: &mut ratatui::Frame, area: ratatui::prelude::Rect);
+	fn render_ui(&self, a: &App, f: &mut ratatui::Frame, area: ratatui::prelude::Rect);
 }
 
 pub struct Modal {
 	pub title: String,
 	pub text: String,
 	pub help: StyledLine,
-	pub input: fn(app: &mut App, c: crossterm::event::KeyCode),
+	pub input: fn(a: &mut App, c: crossterm::event::KeyCode),
 }
 
 pub struct App {
@@ -61,6 +62,7 @@ pub struct App {
 	pub location: String,
 	pub rng: ThreadRng,
 	pub modal: Option<Modal>,
+	pub map: Vec<TileType>,
 	should_pop: bool,
 }
 
@@ -88,6 +90,7 @@ impl App {
 			location: String::from("Beyond the Walls"),
 			rng: rand::thread_rng(),
 			modal: Option::None,
+			map: map::new_map(),
 			should_pop: false,
 		}
 	}
@@ -119,7 +122,7 @@ impl App {
 		title: String,
 		text: String,
 		help: StyledLine,
-		input: fn(app: &mut App, c: crossterm::event::KeyCode),
+		input: fn(a: &mut App, c: crossterm::event::KeyCode),
 	) {
 		self.modal = Some(Modal {
 			title,

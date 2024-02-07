@@ -19,7 +19,7 @@ impl Widget for CellDraw {
 	}
 }
 
-pub fn render(app: &mut App, f: &mut ratatui::Frame) {
+pub fn render(a: &mut App, f: &mut ratatui::Frame) {
 	let margin_1 = Margin::new(1, 1);
 
 	let layout = Layout::default()
@@ -50,7 +50,7 @@ pub fn render(app: &mut App, f: &mut ratatui::Frame) {
 		Block::default()
 			.borders(Borders::ALL)
 			.border_type(BorderType::Rounded)
-			.title(format!(" {} ", &*app.location))
+			.title(format!(" {} ", &*a.location))
 			.title_alignment(Alignment::Center)
 			.title_position(block::Position::Bottom)
 			.yellow(),
@@ -58,8 +58,8 @@ pub fn render(app: &mut App, f: &mut ratatui::Frame) {
 	);
 
 	let name;
-	if app.player.name.len() > 0 {
-		name = format!(" {} ", &*app.player.name);
+	if a.player.name.len() > 0 {
+		name = format!(" {} ", &*a.player.name);
 	} else {
 		name = String::new();
 	}
@@ -72,41 +72,41 @@ pub fn render(app: &mut App, f: &mut ratatui::Frame) {
 		sub_layout[1],
 	);
 
-	let stat_class = Line::raw(format!("{:?}", app.player.class));
-	let stat_doctrine = Line::raw(format!("In pursuit of: {:?}", app.player_doctrine));
+	let stat_class = Line::raw(format!("{:?}", a.player.class));
+	let stat_doctrine = Line::raw(format!("In pursuit of: {:?}", a.player_doctrine));
 
-	if app.player.class != Class::Unknown {
+	if a.player.class != Class::Unknown {
 		stat_class.render(statistics_layout[0], f.buffer_mut());
 	}
-	if app.player_doctrine != Doctrine::Unknown {
+	if a.player_doctrine != Doctrine::Unknown {
 		stat_doctrine.render(
 			statistics_layout[0].offset(Offset { x: 0, y: 1 }),
 			f.buffer_mut(),
 		);
 	}
 
-	if app.player.hp_max > 0 {
+	if a.player.hp_max > 0 {
 		f.render_widget(
 			Gauge::default()
 				.gauge_style(Style::default().fg(Color::Red))
-				.ratio(app.player.hp as f64 / app.player.hp_max as f64)
-				.label(format!("{} hp", app.player.hp)),
+				.ratio(a.player.hp as f64 / a.player.hp_max as f64)
+				.label(format!("{} hp", a.player.hp)),
 			statistics_layout[1],
 		);
 	}
 
 	f.render_widget(
-		Paragraph::new(&*app.help_text)
+		Paragraph::new(&*a.help_text)
 			.alignment(Alignment::Center)
 			.block(Block::bordered().border_type(BorderType::Thick).yellow()),
 		layout[1],
 	);
 
-	if let Some(renderer) = app.focus.last() {
-		renderer.render_ui(app, f, gamescreen_layout);
+	if let Some(renderer) = a.focus.last() {
+		renderer.render_ui(a, f, gamescreen_layout);
 	}
 
-	if let Some(modal) = &app.modal {
+	if let Some(modal) = &a.modal {
 		//Render modal
 		let modal_rect = centered_rect(sub_layout[0], 55, 40);
 		let modal_inner = modal_rect.inner(&Margin::new(5, 2));
@@ -119,7 +119,6 @@ pub fn render(app: &mut App, f: &mut ratatui::Frame) {
 			Block::bordered()
 				.border_type(BorderType::Thick)
 				.gray()
-				.on_dark_gray()
 				.title(format!(" {} ", modal.title))
 				.title_alignment(Alignment::Center),
 			modal_rect,

@@ -3,6 +3,7 @@ pub mod chargen;
 pub mod event;
 pub mod game;
 pub mod gameplay;
+pub mod map;
 pub mod tui;
 pub mod ui;
 pub mod update;
@@ -16,7 +17,7 @@ type Err = Box<dyn std::error::Error>;
 type Result<T> = std::result::Result<T, Err>;
 
 fn main() -> Result<()> {
-	let mut app = App::new();
+	let mut a = App::new();
 
 	let backend = CrosstermBackend::new(std::io::stderr());
 	let terminal = Terminal::new(backend)?;
@@ -24,22 +25,22 @@ fn main() -> Result<()> {
 	let mut tui = Tui::new(terminal, events);
 	tui.enter()?;
 
-	while !app.should_quit {
-		tui.draw(&mut app)?;
+	while !a.should_quit {
+		tui.draw(&mut a)?;
 
 		match tui.events.next()? {
 			Event::Tick => {
-				app.tick();
+				a.tick();
 			}
-			Event::Key(key_event) => update(&mut app, key_event),
+			Event::Key(key_event) => update(&mut a, key_event),
 			Event::Mouse(_) => {}
 			Event::Resize(_, _) => {}
 			Event::FocusChange => {
-				app.tick();
+				a.tick();
 			}
 		};
 
-		app.post_update();
+		a.post_update();
 	}
 
 	tui.exit()?;
