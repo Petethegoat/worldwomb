@@ -94,11 +94,33 @@ impl Chargen {
 
 impl InputTarget for Chargen {
 	fn handle_input(&mut self, a: &mut App, c: crossterm::event::KeyCode) {
+		fn end_chargen(a: &mut App) {
+			a.location = String::from("Within the Worldwomb");
+			a.help_text = String::from("Use arrows or WASD to traverse the Worldwomb.");
+			a.pop_screen();
+		}
+
+		fn random_character(a: &mut App) {
+			a.player.name = String::from("Testus");
+			a.player.class = Class::Conscript;
+			a.player_doctrine = Doctrine::Naught;
+			a.player.hp_max = a.rng.gen_range(100..=120);
+			a.player.hp = a.player.hp_max;
+		}
+
 		match self.stage {
 			ChargenStage::Intro => {
-				if let KeyCode::Enter = c {
-					self.stage = ChargenStage::Class;
-					a.help_text = String::from("Press 1-3 to select class.");
+				match c {
+					KeyCode::Enter => {
+						self.stage = ChargenStage::Class;
+						a.help_text = String::from("Press 1-3 to select class.");
+					}
+					KeyCode::Tab => {
+						// Skip chargen
+						random_character(a);
+						end_chargen(a);
+					}
+					_ => (),
 				}
 			}
 			ChargenStage::Class => {
@@ -147,7 +169,7 @@ impl InputTarget for Chargen {
 					self.stage = ChargenStage::Farewell;
 					a.help_text = String::from(HELP_CONTINUE);
 
-					a.player.hp_max = a.rng.gen_range(100..=120);
+					a.player.hp_max = a.rng.gen_range(1..=12);
 					a.player.hp = a.player.hp_max;
 				}
 				KeyCode::Backspace => {
@@ -160,9 +182,7 @@ impl InputTarget for Chargen {
 			},
 			ChargenStage::Farewell => {
 				if let KeyCode::Enter = c {
-					a.location = String::from("Within the Worldwomb");
-					a.help_text = String::from("Use arrows or WASD to traverse the Worldwomb.");
-					a.pop_screen();
+					end_chargen(a);
 				}
 			}
 		}
