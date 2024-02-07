@@ -1,21 +1,51 @@
 use crate::{
 	app::{App, Renderer},
-	game::{Class, Doctrine},
+	game::{Class, Doctrine, Position},
 };
 use ratatui::{layout::Offset, prelude::*, widgets::*};
 
 #[derive(Default)]
 pub struct CellDraw {
-	pub char: char,
+	pub char: Option<char>,
 	pub x: u16,
 	pub y: u16,
-	pub color: Color,
+	pub fg: Option<Color>,
+	pub bg: Option<Color>,
 }
+
+impl CellDraw {
+	pub fn bg(x: u16, y: u16, bg: Color) -> CellDraw {
+		CellDraw {
+			char: None,
+			x,
+			y,
+			fg: None,
+			bg: Some(bg),
+		}
+	}
+	pub fn entity(pos: Position, char: char, fg: Color) -> CellDraw {
+		CellDraw {
+			char: Some(char),
+			x: <i32 as TryInto<u16>>::try_into(pos.x).unwrap(),
+			y: <i32 as TryInto<u16>>::try_into(pos.y).unwrap(),
+			fg: Some(fg),
+			bg: None,
+		}
+	}
+}
+
 impl Widget for CellDraw {
 	fn render(self, _area: Rect, buf: &mut Buffer) {
-		buf.get_mut(self.x, self.y)
-			.set_char(self.char)
-			.set_fg(self.color);
+		let b = buf.get_mut(self.x, self.y);
+		if let Some(c) = self.char {
+			b.set_char(c);
+		}
+		if let Some(fg) = self.fg {
+			b.set_fg(fg);
+		}
+		if let Some(bg) = self.bg {
+			b.set_bg(bg);
+		}
 	}
 }
 

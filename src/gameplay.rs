@@ -47,25 +47,22 @@ impl Renderer for Gameplay {
 	fn render_ui(&self, a: &crate::app::App, f: &mut Frame, area: Rect) {
 		let x_off: i32 = area.x.into();
 		let y_off: i32 = area.y.into();
+		let pos = crate::game::Position {
+			x: a.player.pos.x + x_off,
+			y: a.player.pos.y + y_off,
+		};
 
-		CellDraw {
-			char: '@',
-			x: <i32 as TryInto<u16>>::try_into(a.player.pos.x + x_off).unwrap(),
-			y: <i32 as TryInto<u16>>::try_into(a.player.pos.y + y_off).unwrap(),
-			color: ratatui::style::Color::Gray,
-		}
-		.render(area, f.buffer_mut());
+		CellDraw::entity(pos, '@', ratatui::style::Color::Gray).render(area, f.buffer_mut());
 
 		let mut x: i32 = area.x.into();
 		let mut y: i32 = area.y.into();
 		for cell in a.map.iter() {
 			if let TileType::Wall = cell {
-				CellDraw {
-					char: '#',
-					x: x.try_into().unwrap(),
-					y: y.try_into().unwrap(),
-					color: ratatui::style::Color::Gray,
-				}
+				CellDraw::bg(
+					x.try_into().unwrap(),
+					y.try_into().unwrap(),
+					ratatui::style::Color::Gray,
+				)
 				.render(area, f.buffer_mut());
 			}
 
