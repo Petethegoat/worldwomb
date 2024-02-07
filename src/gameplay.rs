@@ -4,13 +4,30 @@ use crate::{
 	ui::CellDraw,
 };
 use crossterm::event::KeyCode;
-use ratatui::{layout::Rect, widgets::Widget, Frame};
+use ratatui::{layout::Rect, style::Color::*, widgets::Widget, Frame};
 
 #[derive(Copy, Clone)]
 pub struct Gameplay;
 
 fn try_move(x: i32, y: i32, a: &mut App) {
 	if a.map[tile(a.player.pos.x + x, a.player.pos.y + y)] == TileType::Floor {
+		let positions = a.ecs.positions.clone();
+		for pos in a.ecs.positions.iter_mut() {
+			if pos.1.x == a.player.pos.x + x && pos.1.y == a.player.pos.y + y {
+				if a.map[tile(pos.1.x + x, pos.1.y + y)] == TileType::Floor {
+					for pos2 in positions.iter() {
+						if pos2.1.x == pos.1.x + x && pos2.1.y == pos.1.y + y {
+							return;
+						}
+					}
+					pos.1.x += x;
+					pos.1.y += y;
+					break;
+				} else {
+					return;
+				}
+			}
+		}
 		a.player.pos.x += x;
 		a.player.pos.y += y;
 	}
@@ -45,33 +62,37 @@ impl InputTarget for Gameplay {
 
 impl Renderer for Gameplay {
 	fn render_ui(&self, a: &crate::app::App, f: &mut Frame, area: Rect) {
-		let x_off: i32 = area.x.into();
-		let y_off: i32 = area.y.into();
 		let pos = crate::game::Position {
-			x: a.player.pos.x + x_off,
-			y: a.player.pos.y + y_off,
+			x: a.player.pos.x,
+			y: a.player.pos.y,
 		};
 
-		CellDraw::entity(pos, '@', ratatui::style::Color::Gray).render(area, f.buffer_mut());
-
-		let mut x: i32 = area.x.into();
-		let mut y: i32 = area.y.into();
+		let mut x: i32 = 0;
+		let mut y: i32 = 0;
 		for cell in a.map.iter() {
 			if let TileType::Wall = cell {
-				CellDraw::bg(
-					x.try_into().unwrap(),
-					y.try_into().unwrap(),
-					ratatui::style::Color::Gray,
-				)
-				.render(area, f.buffer_mut());
+				CellDraw::bg(x.try_into().unwrap(), y.try_into().unwrap(), DarkGray)
+					.render(area, f.buffer_mut());
 			}
 
 			x += 1;
-			if x >= crate::map::WIDTH + x_off as i32 {
-				x = area.x.into();
+			if x >= (crate::map::WIDTH) + 0 as i32 {
+				x = 0;
 				y += 1;
 			}
 		}
+
+		for entity in &a.ecs.renderables {
+			if let Some(pos) = a.ecs.positions.get(&entity.0) {
+				let r = entity.1;
+				CellDraw::entity(pos, r.glyph_left, r.glyph_right, r.fg)
+					.render(area, f.buffer_mut());
+			}
+		}
+
+		// Player goes on top.
+		CellDraw::entity(&pos, '@', '⏑', Gray).render(area, f.buffer_mut());
+		//CellDraw::entity(&pos, '♘', '@', Gray).render(area, f.buffer_mut());
 	}
 }
 

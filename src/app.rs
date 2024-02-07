@@ -6,6 +6,7 @@ use ratatui::{
 
 use crate::{
 	chargen::Chargen,
+	entity::EntitySystem,
 	game::{Class, Doctrine, Mob, Position},
 	gameplay::Gameplay,
 	map::{self, TileType},
@@ -54,6 +55,7 @@ pub struct Modal {
 }
 
 pub struct App {
+	pub ecs: EntitySystem,
 	pub should_quit: bool,
 	pub focus: Vec<GameScreen>,
 	pub player: Mob,
@@ -67,8 +69,10 @@ pub struct App {
 }
 
 impl App {
-	pub fn new() -> Self {
+	pub fn new(ecs: EntitySystem) -> Self {
+		// map::decorate_map(&mut ecs);
 		Self {
+			ecs,
 			should_quit: false,
 			focus: vec![
 				GameScreen::ScreenGameplay {

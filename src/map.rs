@@ -1,3 +1,4 @@
+use crate::{entity::*, game::*};
 use rand::Rng;
 
 #[derive(PartialEq, Copy, Clone)]
@@ -10,7 +11,7 @@ pub fn tile(x: i32, y: i32) -> usize {
 	(y as usize * WIDTH as usize) + x as usize
 }
 
-pub const WIDTH: i32 = 76;
+pub const WIDTH: i32 = 38;
 pub const HEIGHT: i32 = 25;
 pub fn new_map() -> Vec<TileType> {
 	let mut map = vec![TileType::Floor; WIDTH as usize * HEIGHT as usize];
@@ -26,11 +27,45 @@ pub fn new_map() -> Vec<TileType> {
 	}
 
 	let mut rng = rand::thread_rng();
-	for _i in 0..20 {
+	for _i in 0..WIDTH + HEIGHT {
 		let x = rng.gen_range(0..WIDTH);
 		let y = rng.gen_range(0..HEIGHT);
 		map[tile(x, y)] = TileType::Wall;
 	}
 
 	map
+}
+
+pub fn decorate_map(ecs: &mut EntitySystem) {
+	let mut rng = rand::thread_rng();
+	for _i in 0..(WIDTH + HEIGHT) / 3 {
+		let x = rng.gen_range(0..WIDTH);
+		let y = rng.gen_range(0..HEIGHT);
+
+		let e = ecs.add_entity();
+		ecs.add_position(e, Position { x, y });
+		ecs.add_render(
+			e,
+			Renderable {
+				glyph_left: '෴',
+				glyph_right: ' ',
+				fg: ratatui::style::Color::Green,
+			},
+		);
+	}
+	for _i in 0..(WIDTH + HEIGHT) / 3 {
+		let x = rng.gen_range(0..WIDTH);
+		let y = rng.gen_range(0..HEIGHT);
+
+		let e = ecs.add_entity();
+		ecs.add_position(e, Position { x, y });
+		ecs.add_render(
+			e,
+			Renderable {
+				glyph_left: ' ',
+				glyph_right: '෴',
+				fg: ratatui::style::Color::Green,
+			},
+		);
+	}
 }

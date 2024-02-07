@@ -6,7 +6,8 @@ use ratatui::{layout::Offset, prelude::*, widgets::*};
 
 #[derive(Default)]
 pub struct CellDraw {
-	pub char: Option<char>,
+	pub glyph_left: Option<char>,
+	pub glyph_right: Option<char>,
 	pub x: u16,
 	pub y: u16,
 	pub fg: Option<Color>,
@@ -16,16 +17,18 @@ pub struct CellDraw {
 impl CellDraw {
 	pub fn bg(x: u16, y: u16, bg: Color) -> CellDraw {
 		CellDraw {
-			char: None,
+			glyph_left: None,
+			glyph_right: None,
 			x,
 			y,
 			fg: None,
 			bg: Some(bg),
 		}
 	}
-	pub fn entity(pos: Position, char: char, fg: Color) -> CellDraw {
+	pub fn entity(pos: &Position, left: char, right: char, fg: Color) -> CellDraw {
 		CellDraw {
-			char: Some(char),
+			glyph_left: Some(left),
+			glyph_right: Some(right),
 			x: <i32 as TryInto<u16>>::try_into(pos.x).unwrap(),
 			y: <i32 as TryInto<u16>>::try_into(pos.y).unwrap(),
 			fg: Some(fg),
@@ -35,9 +38,19 @@ impl CellDraw {
 }
 
 impl Widget for CellDraw {
-	fn render(self, _area: Rect, buf: &mut Buffer) {
-		let b = buf.get_mut(self.x, self.y);
-		if let Some(c) = self.char {
+	fn render(self, area: Rect, buf: &mut Buffer) {
+		let b = buf.get_mut(self.x * 2 + area.x, self.y + area.y);
+		if let Some(c) = self.glyph_left {
+			b.set_char(c);
+		}
+		if let Some(fg) = self.fg {
+			b.set_fg(fg);
+		}
+		if let Some(bg) = self.bg {
+			b.set_bg(bg);
+		}
+		let b = buf.get_mut(self.x * 2 + area.x + 1, self.y + area.y);
+		if let Some(c) = self.glyph_right {
 			b.set_char(c);
 		}
 		if let Some(fg) = self.fg {

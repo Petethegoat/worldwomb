@@ -1,6 +1,7 @@
 use crate::{
 	app::{App, InputTarget, Renderer, HELP_CONTINUE},
-	game::{Class, Doctrine},
+	entity::EntitySystem,
+	game::{Class, Doctrine, Position, Renderable},
 };
 use crossterm::event::KeyCode;
 use rand::Rng;
@@ -94,10 +95,28 @@ impl Chargen {
 
 impl InputTarget for Chargen {
 	fn handle_input(&mut self, a: &mut App, c: crossterm::event::KeyCode) {
+		fn add_gear(ecs: &mut EntitySystem, x: i32, y: i32) {
+			let e = ecs.add_entity();
+			ecs.add_position(e, Position { x, y });
+			ecs.add_render(
+				e,
+				Renderable {
+					glyph_left: '⚙',
+					glyph_right: ' ',
+					fg: ratatui::style::Color::LightCyan,
+				},
+			);
+		}
+
 		fn end_chargen(a: &mut App) {
 			a.location = String::from("Within the Worldwomb");
 			a.help_text = String::from("Use arrows or WASD to traverse the Worldwomb.");
 			a.pop_screen();
+
+			add_gear(&mut a.ecs, 6, 6);
+			add_gear(&mut a.ecs, 12, 6);
+			add_gear(&mut a.ecs, 20, 20);
+			add_gear(&mut a.ecs, 6, 20);
 		}
 
 		fn random_character(a: &mut App) {

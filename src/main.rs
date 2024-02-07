@@ -1,5 +1,6 @@
 pub mod app;
 pub mod chargen;
+pub mod entity;
 pub mod event;
 pub mod game;
 pub mod gameplay;
@@ -9,6 +10,7 @@ pub mod ui;
 pub mod update;
 
 use app::App;
+use entity::EntitySystem;
 use event::{Event, EventHandler};
 use ratatui::{backend::CrosstermBackend, Terminal};
 use tui::Tui;
@@ -17,7 +19,8 @@ type Err = Box<dyn std::error::Error>;
 type Result<T> = std::result::Result<T, Err>;
 
 fn main() -> Result<()> {
-	let mut a = App::new();
+	let ecs = EntitySystem::new();
+	let mut a = App::new(ecs);
 
 	let backend = CrosstermBackend::new(std::io::stderr());
 	let terminal = Terminal::new(backend)?;
@@ -29,15 +32,11 @@ fn main() -> Result<()> {
 		tui.draw(&mut a)?;
 
 		match tui.events.next()? {
-			Event::Tick => {
-				a.tick();
-			}
+			Event::Tick => a.tick(),
 			Event::Key(key_event) => update(&mut a, key_event),
 			Event::Mouse(_) => {}
 			Event::Resize(_, _) => {}
-			Event::FocusChange => {
-				a.tick();
-			}
+			Event::FocusChange => a.tick(),
 		};
 
 		a.post_update();

@@ -1,9 +1,17 @@
 use std::fmt;
 
+use ratatui::style::Color;
+
 #[derive(Copy, Clone, PartialEq)]
 pub struct Position {
 	pub x: i32,
 	pub y: i32,
+}
+
+pub struct Renderable {
+	pub glyph_left: char,
+	pub glyph_right: char,
+	pub fg: Color,
 }
 
 impl fmt::Display for Position {
@@ -19,6 +27,8 @@ pub struct Mob {
 	pub hp: u8,
 	pub hp_max: u8,
 }
+
+pub struct Pushable {}
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Class {
