@@ -1,5 +1,6 @@
 use crate::{
 	app::{App, InputTarget, Renderer},
+	game::PlayerItem,
 	map::{tile, TileType},
 	ui::CellDraw,
 };
@@ -46,6 +47,10 @@ impl InputTarget for Gameplay {
 			KeyCode::Right | KeyCode::Char('d') => try_move(1, 0, a),
 			KeyCode::Up | KeyCode::Char('w') => try_move(0, -1, a),
 			KeyCode::Down | KeyCode::Char('s') => try_move(0, 1, a),
+
+			KeyCode::Char('1') => a.player.item = PlayerItem::None,
+			KeyCode::Char('2') => a.player.item = PlayerItem::Torch,
+			KeyCode::Char('3') => a.player.item = PlayerItem::Sword,
 			_ => return,
 		}
 
@@ -85,13 +90,14 @@ impl Renderer for Gameplay {
 		for entity in &a.ecs.renderables {
 			if let Some(pos) = a.ecs.positions.get(&entity.0) {
 				let r = entity.1;
-				CellDraw::entity(pos, r.glyph_left, r.glyph_right, r.fg)
+				CellDraw::entity(pos, r.glyph_left, r.glyph_right, r.fg, r.fg)
 					.render(area, f.buffer_mut());
 			}
 		}
 
 		// Player goes on top.
-		CellDraw::entity(&pos, '@', '⏑', Gray).render(area, f.buffer_mut());
+		let (char, col) = a.player.item.get_char();
+		CellDraw::entity(&pos, '@', char, Gray, col).render(area, f.buffer_mut());
 		//CellDraw::entity(&pos, '♘', '@', Gray).render(area, f.buffer_mut());
 	}
 }

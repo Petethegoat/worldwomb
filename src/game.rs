@@ -1,6 +1,7 @@
 use std::fmt;
 
 use ratatui::style::Color;
+use ratatui::style::Color::*;
 
 #[derive(Copy, Clone, PartialEq)]
 pub struct Position {
@@ -26,6 +27,7 @@ pub struct Mob {
 	pub class: Class,
 	pub hp: u8,
 	pub hp_max: u8,
+	pub item: PlayerItem,
 }
 
 pub struct Pushable {}
@@ -56,4 +58,25 @@ impl Doctrine {
 		Self::Knowledge,
 		Self::Camaraderie,
 	];
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum PlayerItem {
+	None,
+	Torch,
+	Sword,
+}
+impl PlayerItem {
+	pub fn get_char(self) -> (char, Color) {
+		match self {
+			PlayerItem::None => ('⏑', Gray),
+			PlayerItem::Torch => ('ٱ', Yellow),
+			PlayerItem::Sword => ('˨', Gray),
+		}
+	}
+}
+
+pub struct Title {
+	title: String,
+	priority: i32,
 }

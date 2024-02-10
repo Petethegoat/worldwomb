@@ -10,7 +10,8 @@ pub struct CellDraw {
 	pub glyph_right: Option<char>,
 	pub x: u16,
 	pub y: u16,
-	pub fg: Option<Color>,
+	pub fg_left: Option<Color>,
+	pub fg_right: Option<Color>,
 	pub bg: Option<Color>,
 }
 
@@ -21,17 +22,25 @@ impl CellDraw {
 			glyph_right: None,
 			x,
 			y,
-			fg: None,
+			fg_left: None,
+			fg_right: None,
 			bg: Some(bg),
 		}
 	}
-	pub fn entity(pos: &Position, left: char, right: char, fg: Color) -> CellDraw {
+	pub fn entity(
+		pos: &Position,
+		left: char,
+		right: char,
+		fg_left: Color,
+		fg_right: Color,
+	) -> CellDraw {
 		CellDraw {
 			glyph_left: Some(left),
 			glyph_right: Some(right),
 			x: <i32 as TryInto<u16>>::try_into(pos.x).unwrap(),
 			y: <i32 as TryInto<u16>>::try_into(pos.y).unwrap(),
-			fg: Some(fg),
+			fg_left: Some(fg_left),
+			fg_right: Some(fg_right),
 			bg: None,
 		}
 	}
@@ -39,25 +48,29 @@ impl CellDraw {
 
 impl Widget for CellDraw {
 	fn render(self, area: Rect, buf: &mut Buffer) {
-		let b = buf.get_mut(self.x * 2 + area.x, self.y + area.y);
-		if let Some(c) = self.glyph_left {
-			b.set_char(c);
-		}
-		if let Some(fg) = self.fg {
-			b.set_fg(fg);
-		}
-		if let Some(bg) = self.bg {
-			b.set_bg(bg);
-		}
-		let b = buf.get_mut(self.x * 2 + area.x + 1, self.y + area.y);
-		if let Some(c) = self.glyph_right {
-			b.set_char(c);
-		}
-		if let Some(fg) = self.fg {
-			b.set_fg(fg);
-		}
-		if let Some(bg) = self.bg {
-			b.set_bg(bg);
+		for offset in 0..=1 {
+			let b = buf.get_mut(self.x * 2 + area.x + offset, self.y + area.y);
+			match offset {
+				1 => {
+					if let Some(c) = self.glyph_right {
+						b.set_char(c);
+						if let Some(fg) = self.fg_right {
+							b.set_fg(fg);
+						}
+					}
+				}
+				_ => {
+					if let Some(c) = self.glyph_left {
+						b.set_char(c);
+						if let Some(fg) = self.fg_left {
+							b.set_fg(fg);
+						}
+					}
+				}
+			}
+			if let Some(bg) = self.bg {
+				b.set_bg(bg);
+			}
 		}
 	}
 }

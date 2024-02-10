@@ -88,6 +88,7 @@ impl App {
 				pos: Position { x: 4, y: 2 },
 				hp: 0,
 				hp_max: 0,
+				item: crate::game::PlayerItem::None,
 			},
 			player_doctrine: Doctrine::Unknown,
 			help_text: String::from(HELP_CONTINUE),
